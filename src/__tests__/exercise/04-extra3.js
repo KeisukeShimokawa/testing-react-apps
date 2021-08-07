@@ -5,10 +5,20 @@ import * as React from 'react'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Login from '../../components/login'
+import faker from 'faker';
+
+function buildLoginForm(overrides) {
+  return {
+    username: faker.internet.userName(),
+    password: faker.internet.password(),
+    ...overrides
+  }
+}
 
 test('submitting the form calls onSubmit with username and password', () => {
-  let submittedData
-  const handleSubmit = (data) => (submittedData = data)
+  // let submittedData
+  // const handleSubmit = (data) => (submittedData = data)
+  const handleSubmit = jest.fn()
 
   render(<Login onSubmit={handleSubmit} />)
 
@@ -16,8 +26,11 @@ test('submitting the form calls onSubmit with username and password', () => {
   // screen.debug()
 
   // テスト用の値を指定する
-  const username = 'keisuke'
-  const password = 'shimokawa'
+  // const username = faker.internet.userName();
+  // const password = faker.internet.password();
+  const {username, password} = buildLoginForm({
+    username: 'other person'
+  });
 
   // 入力する場所を検索する
   const usernameInputArea = screen.getByLabelText(/username/i)
@@ -33,10 +46,11 @@ test('submitting the form calls onSubmit with username and password', () => {
   // クリックするイベントを発火する
   userEvent.click(clickArea);
 
-  expect(submittedData).toEqual({
+  expect(handleSubmit).toHaveBeenCalledWith({
     username,
     password
   })
+  expect(handleSubmit).toHaveBeenCalledTimes(1)
 })
 
 /*
